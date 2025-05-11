@@ -7,14 +7,20 @@ import (
 	"strings"
 )
 
+var apiKey string = "4bf24a447dfc553655f37dce" //CACHE !!!
+
 type ExchangeResponse struct {
 	BaseCode       string  `json:"base_code"`
 	TargetCode     string  `json:"target_code"`
 	ConversionRate float64 `json:"conversion_rate"`
 }
 
+type CurrencyCode struct {
+	Result         string     `json:"result"`
+	SupportedCodes [][]string `json:"supported_codes"`
+}
+
 func main() {
-	apiKey := "4bf24a447dfc553655f37dce" //CACHE !!!
 	fmt.Println("Liste des devises disponibles :", CurrencyCodeList())
 
 	entryCurrency := EntryCurrency()
@@ -67,5 +73,26 @@ func Amount() float64 {
 }
 
 func CurrencyCodeList() []string {
-	return []string{"USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD"}
+	url := fmt.Sprintf("https://v6.exchangerate-api.com/v6/%s/codes", apiKey)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Erreur lors de la récupération des données :", err)
+		return []string{}
+	}
+	defer resp.Body.Close()
+
+	var data CurrencyCode
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		fmt.Println("Erreur lors du décodage JSON :", err)
+		return []string{}
+	}
+
+	var currencyCodes []string
+	for _, codePair := range data.SupportedCodes {
+		currencyCodes = append(currencyCodes, codePair[0])
+	}
+
+	return currencyCodes
 }
