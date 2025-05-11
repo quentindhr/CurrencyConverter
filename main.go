@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var apiKey string = "4bf24a447dfc553655f37dce" //CACHE !!!
+var apiKey string = "######" 
 
 type ExchangeResponse struct {
 	BaseCode       string  `json:"base_code"`
